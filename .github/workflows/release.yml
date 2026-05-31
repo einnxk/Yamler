@@ -1,4 +1,4 @@
-name: Auto Release & Jitpack Trigger
+name: Auto Release
 
 on:
   push:
@@ -21,11 +21,13 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
 
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
       - name: Extract Version from Gradle
         id: get_version
         run: |
-          # Extrahiert die Zeile mit version = "..." und isoliert den Wert
-          VERSION=$(./gradlew properties | grep "^version:" | awk '{print $2}')
+          VERSION=$(./gradlew -q help --eval "print(project.version)")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Extracted Version: $VERSION"
 
@@ -62,4 +64,4 @@ jobs:
         run: |
           echo "Triggering JitPack for ${{ github.repository }} with version ${{ env.VERSION }}..."
           curl -s "https://jitpack.io/api/builds/com.github.${{ github.repository }}/${{ env.VERSION }}" > /dev/null
-          echo "JitPack build triggered successfully!"
+          echo "JitPack build triggered successfully"
