@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "de.einnik"
-    version = "2.4.0-SNAPSHOT"
+    version = "2.4.0"
 
     repositories {
         mavenCentral()
@@ -72,6 +72,15 @@ subprojects {
                     "name" to project.name
                 )
             )
+        }
+    }
+
+    publishing {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                from(components["java"])
+                artifactId = project.name
+            }
         }
     }
 }
