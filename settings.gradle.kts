@@ -1,4 +1,4 @@
-rootProject.name = "Yamler-parent"
+rootProject.name = "Yamler"
 
 include("Yamler-Core")
 include("core")
