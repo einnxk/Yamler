@@ -10,7 +10,7 @@ import java.util.HashMap;
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class Map implements Converter {
-    private InternalConverter internalConverter;
+    private final InternalConverter internalConverter;
 
     public Map(InternalConverter internalConverter) {
         this.internalConverter = internalConverter;
