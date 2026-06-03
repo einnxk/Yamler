@@ -5,10 +5,12 @@ import de.einnik.yamler_v3.core.annotations.SerializeOptions
 import de.einnik.yamler_v3.core.converter.Converter
 import de.einnik.yamler_v3.core.converter.InternalConverter
 import de.einnik.yamler_v3.core.enums.ConfigMode
+import de.einnik.yamler_v3.core.exception.InvalidConverterException
 import org.jetbrains.annotations.NotNull
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
+import kotlin.jvm.Throws
 
 /**
  * The base for any configuration class, the class with extends the
@@ -36,6 +38,7 @@ open class ConfigBase {
      * @param converter the custom converter we want to add for this YAML
      *                  file
      */
+    @Throws(InvalidConverterException::class)
     fun addConverter(@NotNull converter: Class<out Converter>) {
         internalConverter.addConverter(converter)
     }
