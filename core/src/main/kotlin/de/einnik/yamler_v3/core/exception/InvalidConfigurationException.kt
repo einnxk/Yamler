@@ -1,4 +1,4 @@
-package de.einnik.yamler.core.exception
+package de.einnik.yamler_v3.core.exception
 
 /**
  * An Exception that is thrown when the file is missing required fields or
