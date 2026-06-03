@@ -7,62 +7,47 @@ package de.einnik.yamler_v3.core.section
  * @author EinNik
  * @since 3.0.0-SNAPSHOT
  */
-open class ConfigSection {
+open class ConfigSection(private val fullPath: String = "") {
 
-    private val fullPath: String
     protected val map: MutableMap<Any, Any?> = LinkedHashMap()
 
-    constructor() {
-        this.fullPath = ""
-    }
+    constructor(root: ConfigSection, key: String) : this(
+        if (root.fullPath.isNotEmpty()) "${root.fullPath}.$key" else key
+    )
 
-    constructor(root: ConfigSection, key: String) {
-        this.fullPath =
-            if (root.fullPath.isNotEmpty()) "${root.fullPath}.$key"
-            else key
-    }
-
-    fun create(path: String?): ConfigSection {
-        require(path != null) { "Cannot create section at empty path" }
-
-        var i1 = -1
-        var i2: Int
-
-        var section = this
-
-        while (path.indexOf('.', i1 + 1).also {
-                i2 = i1 + 1
-                i1 = it
-            } != -1) {
-
-            val node = path.substring(i2, i1)
-            val subSection = section.getConfigSection(node)
-
-            section = subSection ?: section.create(node)
+    fun create(path: String): ConfigSection {
+        require(path.isNotEmpty()) {
+            "Cannot create section at empty path"
         }
 
-        val key = path.substring(i2)
+        val parts = path.split('.')
+        var section = this
+
+        for (part in parts.dropLast(1)) {
+            section = section.getConfigSection(part)
+                ?: section.create(part)
+        }
+
+        val key = parts.last()
 
         if (section === this) {
-            val result = ConfigSection(this, key)
-            map[key] = result
-            return result
+            return ConfigSection(this, key).also {
+                map[key] = it
+            }
         }
 
         return section.create(key)
     }
 
-    private fun getConfigSection(node: String): ConfigSection? {
-        val value = map[node]
-        return value as? ConfigSection
-    }
+    private fun getConfigSection(node: String): ConfigSection? =
+        map[node] as? ConfigSection
 
     fun set(path: String, value: Any?) {
         set(path, value, true)
     }
 
     fun set(
-        path: String?,
+        path: String,
         value: Any?,
         searchForSubNodes: Boolean
     ) {
@@ -70,25 +55,17 @@ open class ConfigSection {
             "Cannot set a value at empty path"
         }
 
-        var i1 = -1
-        var i2 = 0
-
         var section = this
+        val parts = path.split('.')
 
         if (searchForSubNodes) {
-            while (path.indexOf('.', i1 + 1).also {
-                    i2 = i1 + 1
-                    i1 = it
-                } != -1) {
-
-                val node = path.substring(i2, i1)
-                val subSection = section.getConfigSection(node)
-
-                section = subSection ?: section.create(node)
+            for (part in parts.dropLast(1)) {
+                section = section.getConfigSection(part)
+                    ?: section.create(part)
             }
         }
 
-        val key = path.substring(i2)
+        val key = parts.last()
 
         if (section === this) {
             if (value == null) {
@@ -97,7 +74,7 @@ open class ConfigSection {
                 map[key] = value
             }
         } else {
-            section.set(key, value)
+            section.set(key, value, false)
         }
     }
 
@@ -106,12 +83,11 @@ open class ConfigSection {
         section: ConfigSection?,
         deep: Boolean
     ) {
-        if (section == null) return
+        section ?: return
 
         for ((key, value) in section.map) {
             if (value is ConfigSection) {
-                val result: MutableMap<Any, Any?> = LinkedHashMap()
-
+                val result = LinkedHashMap<Any, Any?>()
                 output[key] = result
 
                 if (deep) {
@@ -123,79 +99,46 @@ open class ConfigSection {
         }
     }
 
-    fun getValues(deep: Boolean): Map<Any, Any?> {
-        val result: MutableMap<Any, Any?> = LinkedHashMap()
-        mapChildrenValues(result, this, deep)
-        return result
-    }
+    fun getValues(deep: Boolean): Map<Any, Any?> =
+        LinkedHashMap<Any, Any?>().also {
+            mapChildrenValues(it, this, deep)
+        }
 
     fun remove(path: String) {
         set(path, null)
     }
 
-    fun has(path: String?): Boolean {
-        require(path != null) {
+    fun has(path: String): Boolean {
+        require(path.isNotEmpty()) {
             "Cannot remove a Value at empty path"
         }
 
-        var i1 = -1
-        var i2: Int
-
+        val parts = path.split('.')
         var section = this
 
-        while (path.indexOf('.', i1 + 1).also {
-                i2 = i1 + 1
-                i1 = it
-            } != -1) {
-
-            val node = path.substring(i2, i1)
-            val subSection = section.getConfigSection(node)
-
-            if (subSection == null) {
-                return false
-            }
-
-            section = subSection
+        for (part in parts.dropLast(1)) {
+            section = section.getConfigSection(part)
+                ?: return false
         }
 
-        val key = path.substring(i2)
-
-        return if (section === this) {
-            map.containsKey(key)
-        } else {
-            section.has(key)
-        }
+        return parts.last() in section.map
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> get(path: String?): T? {
-        require(path != null) {
+    fun <T> get(path: String): T? {
+        require(path.isNotEmpty()) {
             "Cannot remove a Value at empty path"
         }
 
-        var i1 = -1
-        var i2: Int
-
+        val parts = path.split('.')
         var section = this
 
-        while (path.indexOf('.', i1 + 1).also {
-                i2 = i1 + 1
-                i1 = it
-            } != -1) {
-
-            val node = path.substring(i2, i1)
-            val subSection = section.getConfigSection(node)
-
-            section = subSection ?: section.create(node)
+        for (part in parts.dropLast(1)) {
+            section = section.getConfigSection(part)
+                ?: section.create(part)
         }
 
-        val key = path.substring(i2)
-
-        return if (section === this) {
-            map[key] as T?
-        } else {
-            section.get(key)
-        }
+        return section.map[parts.last()] as T?
     }
 
     fun getRawMap(): Map<Any, Any?> = map
@@ -204,16 +147,13 @@ open class ConfigSection {
 
         fun convertFromMap(
             config: Map<*, *>
-        ): ConfigSection {
-            val configSection = ConfigSection()
-
-            for ((key, value) in config) {
-                if (key != null) {
-                    configSection.map[key] = value
+        ): ConfigSection =
+            ConfigSection().apply {
+                config.forEach { (key, value) ->
+                    if (key != null) {
+                        map[key] = value
+                    }
                 }
             }
-
-            return configSection
-        }
     }
 }
