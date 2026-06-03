@@ -62,7 +62,7 @@ open class ConfigSection {
     }
 
     fun set(
-        path: String,
+        path: String?,
         value: Any?,
         searchForSubNodes: Boolean
     ) {
