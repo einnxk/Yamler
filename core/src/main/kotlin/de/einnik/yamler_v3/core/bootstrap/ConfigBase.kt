@@ -10,6 +10,13 @@ import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
+/**
+ * The base for any configuration class, the class with extends the
+ * YamlConfig later - Has this class as a transitive dependency
+ *
+ * @author EinNik
+ * @since 3.0.0-SNAPSHOT
+ */
 open class ConfigBase {
 
     @Transient
@@ -23,10 +30,24 @@ open class ConfigBase {
     @Transient
     protected val internalConverter: InternalConverter = InternalConverter()
 
+    /**
+     * Add a custom converter for the parsing of the YAML File
+     *
+     * @param converter the custom converter we want to add for this YAML
+     *                  file
+     */
     fun addConverter(@NotNull converter: Class<out Converter>) {
         internalConverter.addConverter(converter)
     }
 
+    /**
+     * Internal method to check if the field should be skipped, because it is static, final
+     * or the serialize annotation config allows that
+     *
+     * @param field the field we check
+     *
+     * @return returns if the field should be skipped
+     */
     fun doSkip(@NotNull field: Field) : Boolean {
         if (Modifier.isTransient(field.modifiers) || Modifier.isFinal(field.modifiers)) {
             return true
@@ -44,8 +65,12 @@ open class ConfigBase {
         return false
     }
 
+    /**
+     * An internal method that serializes the configurations from the class with are defined
+     * by annotating the class with the SerializeOptions annotation
+     */
     fun serializeConfigurationFromAnnotation() {
-        if (!javaClass.isAnnotationPresent(SerializeOptions::class.java)) {
+        if (!(javaClass.isAnnotationPresent(SerializeOptions::class.java))) {
             return
         }
 

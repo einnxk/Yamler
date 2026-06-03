@@ -7,7 +7,7 @@ import java.util.Map;
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class ConfigSection {
-    private String fullPath;
+    private final String fullPath;
     protected final Map<Object, Object> map = new LinkedHashMap<>();
 
     public ConfigSection() {
