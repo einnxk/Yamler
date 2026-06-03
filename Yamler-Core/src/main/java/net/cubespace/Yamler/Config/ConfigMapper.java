@@ -66,7 +66,7 @@ public class ConfigMapper extends BaseConfigMapper {
 	}
 
 	public void loadFromMap(Map section, Class clazz) throws Exception {
-		if (!clazz.getSuperclass().equals(YamlConfig.class) && !clazz.getSuperclass().equals(YamlConfig.class)) {
+		if (!clazz.getSuperclass().equals(YamlConfig.class)) {
 			loadFromMap(section, clazz.getSuperclass());
 		}
 

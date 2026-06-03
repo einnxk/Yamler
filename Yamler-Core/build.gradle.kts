@@ -1,3 +1,3 @@
 dependencies {
-    implementation("org.yaml:snakeyaml:1.13")
+    implementation("org.yaml:snakeyaml:2.6")
 }
