@@ -44,7 +44,9 @@ subprojects {
     }
 
     dependencies {
-        testImplementation("org.testng:testng:6.8.7")
+        compileOnly("org.jetbrains:annotations:24.0.1")
+        compileOnly("org.projectlombok:lombok:1.18.44")
+        annotationProcessor("org.projectlombok:lombok:1.18.44")
     }
 
     tasks.test {
