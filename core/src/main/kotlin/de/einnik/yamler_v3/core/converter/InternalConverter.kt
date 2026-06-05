@@ -8,6 +8,13 @@ import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
+/**
+ * This is the manager class for the converters here we register custom
+ * or default converter
+ *
+ * @author EinNik
+ * @since 3.0.0-SNAPSHOT
+ */
 open class InternalConverter {
 
     private val converters: LinkedHashSet<Converter> = linkedSetOf()
@@ -47,33 +54,43 @@ open class InternalConverter {
     fun fromConfig(config: YamlConfig, field: Field, root: ConfigSection, path: String) {
         val obj = field.get(config)
 
-        val converter = if (obj != null) {
-            getConverter(obj.javaClass) ?: getConverter(field.type)
-        } else {
-            getConverter(field.type)
-        }
+        val objConverter = obj?.let { getConverter(it.javaClass) }
+        val fieldConverter = getConverter(field.type)
+        val converter = objConverter ?: fieldConverter
 
         val isStatic = Modifier.isStatic(field.modifiers)
+
         if (isStatic) {
             val preserveStatic = field.getAnnotation(PreserveStatic::class.java)
             if (preserveStatic == null || !preserveStatic.value) {
                 return
             }
         }
-        val genericType = field.genericType as? ParameterizedType
-        val rawValue: Any? = root.get(path)
 
-        val finalValue = if (converter != null) {
-            val targetType = if (obj != null && getConverter(obj.javaClass) != null) obj.javaClass else field.type
-            converter.fromConfig(targetType, rawValue, genericType)
-        } else {
-            rawValue
-        }
+        val genericType = field.genericType as? ParameterizedType
+        val rawValue = root.get(path) as Any?
+
+        val value =
+            if (converter != null) {
+                val targetType =
+                    if (objConverter != null)
+                        obj.javaClass
+                    else
+                        field.type
+
+                converter.fromConfig(
+                    targetType,
+                    rawValue,
+                    genericType
+                )
+            } else {
+                rawValue
+            }
 
         if (isStatic) {
-            field.set(null, finalValue)
+            field.set(null, value)
         } else {
-            field.set(config, finalValue)
+            field.set(config, value)
         }
     }
 
@@ -86,12 +103,27 @@ open class InternalConverter {
             return
         }
 
-        val converter = getConverter(obj.javaClass) ?: getConverter(field.type)
+        val objConverter = getConverter(obj.javaClass)
+        val fieldConverter = getConverter(field.type)
+        val converter = objConverter ?: fieldConverter
+
         val genericType = field.genericType as? ParameterizedType
 
         if (converter != null) {
-            val targetType = if (getConverter(obj.javaClass) != null) obj.javaClass else field.type
-            root.set(path, converter.toConfig(targetType, obj, genericType))
+            val targetType =
+                if (objConverter != null)
+                    obj.javaClass
+                else
+                    field.type
+
+            root.set(
+                path,
+                converter.toConfig(
+                    targetType,
+                    obj,
+                    genericType
+                )
+            )
         } else {
             root.set(path, obj)
         }

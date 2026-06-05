@@ -16,9 +16,7 @@ public class ConfigMapper extends BaseConfigMapper {
 
 		if (!clazz.getSuperclass().equals(YamlConfig.class) && !clazz.getSuperclass().equals(Object.class)) {
 			Map<String, Object> map = saveToMap(clazz.getSuperclass());
-			for (Map.Entry<String, Object> entry : map.entrySet()) {
-				returnMap.put(entry.getKey(), entry.getValue());
-			}
+            returnMap.putAll(map);
 		}
 
 		for (Field field : clazz.getDeclaredFields()) {
