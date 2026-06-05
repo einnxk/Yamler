@@ -13,22 +13,25 @@ import java.lang.reflect.ParameterizedType
 class MapConverter(private val internalConverter: InternalConverter) : Converter {
 
     override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
-        val map1 = obj as? MutableMap<Any, Any?> ?: return obj
+        val source = obj as? Map<*, *> ?: return obj
+        val result = HashMap<Any?, Any?>()
 
-        for ((key, value) in map1) {
-            if (value == null) continue
+        for ((key, value) in source) {
+            if (value == null) {
+                result[key] = null
+                continue
+            }
 
-            val clazz = value.javaClass
-            val converter = internalConverter.getConverter(clazz)
+            val converter = internalConverter.getConverter(value.javaClass)
 
-            map1[key] = if (converter != null) {
-                converter.toConfig(clazz, value, null)
+            result[key] = if (converter != null) {
+                converter.toConfig(value.javaClass, value, null)
             } else {
                 value
             }
         }
 
-        return map1
+        return result
     }
 
     override fun fromConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
