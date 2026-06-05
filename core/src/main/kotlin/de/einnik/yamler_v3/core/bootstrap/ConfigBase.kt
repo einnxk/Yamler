@@ -22,7 +22,7 @@ import kotlin.jvm.Throws
 open class ConfigBase {
 
     @Transient
-    protected var configFile: File? = null
+    var configFile: File? = null
     @Transient
     protected var configHeader: Array<String>? = null
     @Transient
