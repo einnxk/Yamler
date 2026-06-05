@@ -137,11 +137,9 @@ open class BaseConfigMapper : ConfigBase() {
                                     depth = 2
                                 } else {
                                     val temp = arrayListOf<String>()
-                                    var index = 0
 
-                                    for (i in 0 until spaces step 2) {
+                                    for ((index, _) in (0 until spaces step 2).withIndex()) {
                                         temp.add(keyChain[index])
-                                        index++
                                     }
 
                                     keyChain = temp

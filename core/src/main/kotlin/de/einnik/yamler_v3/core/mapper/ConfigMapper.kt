@@ -2,7 +2,10 @@ package de.einnik.yamler_v3.core.mapper
 
 import de.einnik.yamler_v3.core.YamlConfig
 import de.einnik.yamler_v3.core.annotations.Path
+import de.einnik.yamler_v3.core.annotations.validate.Range
+import de.einnik.yamler_v3.core.annotations.validate.Required
 import de.einnik.yamler_v3.core.enums.ConfigMode
+import de.einnik.yamler_v3.core.exception.InvalidConfigurationException
 import de.einnik.yamler_v3.core.section.ConfigSection
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -86,6 +89,84 @@ open class ConfigMapper : BaseConfigMapper() {
             }
 
             internalConverter.fromConfig(this as YamlConfig, field, ConfigSection.convertFromMap(section), path)
+
+            validateRange(field)
+            validRequired(field)
+        }
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    protected fun validRequired(field: Field) {
+        field.isAccessible = true
+
+        if (!(field.isAnnotationPresent(Required::class.java))) {
+            return
+        }
+
+        val required = field.getAnnotation(Required::class.java).value
+        if (!(required)) {
+            return
+        }
+
+        field.get(this) ?: throw InvalidConfigurationException(
+            "An field annotated with @Required is null: ${field.name}"
+        )
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    protected fun validateRange(field: Field) {
+        field.isAccessible = true
+
+        if (!(field.isAnnotationPresent(Range::class.java))) {
+            return
+        }
+
+        val range: Range = field.getAnnotation(Range::class.java)
+        val min: Int = range.min
+        val max: Int = range.max
+
+        val value = field.get(this) ?: return
+
+        when (value) {
+            is Byte -> validateNumber(field.name, value.toLong(), min, max)
+            is Short -> validateNumber(field.name, value.toLong(), min, max)
+            is Int -> validateNumber(field.name, value.toLong(), min, max)
+            is Long -> validateNumber(field.name, value, min, max)
+
+            is Collection<*> -> validateSize(field.name, value.size, min, max)
+            is Map<*, *> -> validateSize(field.name, value.size, min, max)
+
+            is Array<*> -> validateSize(field.name, value.size, min, max)
+            is ByteArray -> validateSize(field.name, value.size, min, max)
+            is ShortArray -> validateSize(field.name, value.size, min, max)
+            is IntArray -> validateSize(field.name, value.size, min, max)
+            is LongArray -> validateSize(field.name, value.size, min, max)
+            is FloatArray -> validateSize(field.name, value.size, min, max)
+            is DoubleArray -> validateSize(field.name, value.size, min, max)
+            is CharArray -> validateSize(field.name, value.size, min, max)
+            is BooleanArray -> validateSize(field.name, value.size, min, max)
+
+            else -> throw InvalidConfigurationException(
+                "@Range does not support type '${field.type.name}' (field '${field.name}')"
+            )
+        }
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    private fun validateNumber(fieldName: String, value: Long, min: Int, max: Int) {
+        if (value !in min.toLong()..max.toLong()) {
+            throw InvalidConfigurationException(
+                "Filed '$fieldName' must be between $min - $max (currently: $value)"
+            )
+        }
+    }
+
+    @Throws(InvalidConfigurationException::class)
+    private fun validateSize(fieldName: String, size: Int, min: Int, max: Int) {
+        if (size !in min..max) {
+            throw InvalidConfigurationException(
+                "Field '$fieldName' must have a size between $min - $max (currently: $size)"
+            )
         }
     }
 }
