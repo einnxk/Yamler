@@ -94,8 +94,7 @@ class MapConverter(private val internalConverter: InternalConverter) : Converter
         return map
     }
 
-    override fun supports(type: Class<*>?): Boolean {
-        if (type == null) return false
+    override fun supports(type: Class<*>): Boolean {
         return Map::class.java.isAssignableFrom(type)
     }
 }

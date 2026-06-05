@@ -43,5 +43,5 @@ interface Converter {
      * @param type The type (Class) of the Field to check
      * @return true if this can convert that otherwise false
      */
-    fun supports(type: Class<*>?): Boolean
+    fun supports(type: Class<*>): Boolean
 }

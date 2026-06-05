@@ -22,7 +22,12 @@ open class InternalConverter {
 
     init {
         try {
+            addConverter(ConfigConverter::class.java)
+            addConverter(ArrayConverter::class.java)
+            addConverter(PrimitiveConverter::class.java)
             addConverter(MapConverter::class.java)
+            addConverter(ListConverter::class.java)
+            addConverter(SetConverter::class.java)
         } catch (e: Exception) {
             throw InvalidConverterException("Failed to init default converters: ", e)
         }
@@ -37,7 +42,7 @@ open class InternalConverter {
         }
     }
 
-    fun getConverter(type: Class<*>?): Converter? {
+    fun getConverter(type: Class<*>): Converter? {
         return converters.firstOrNull { it.supports(type) }
     }
 
