@@ -5,6 +5,7 @@ import de.einnik.yamler_v3.core.converter.InternalConverter
 import de.einnik.yamler_v3.core.section.ConfigSection
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import org.jetbrains.annotations.ApiStatus
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -14,7 +15,9 @@ import java.lang.reflect.ParameterizedType
  * @author EinNik
  * @since 3.0.0-SNAPSHOT
  */
-class ItemStackConverter(private val internalConverter: InternalConverter) : Converter {
+@Deprecated(message = "Newer version peding")
+@ApiStatus.ScheduledForRemoval(inVersion = "MC 26.1")
+open class ItemStackConverter(private val internalConverter: InternalConverter) : Converter {
 
     override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any? {
         val itemStack: ItemStack = obj as ItemStack

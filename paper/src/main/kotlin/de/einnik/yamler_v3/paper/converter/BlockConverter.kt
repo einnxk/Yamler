@@ -16,7 +16,7 @@ import java.lang.reflect.ParameterizedType
  * @author EinNik
  * @since 3.0.0-SNAPSHOT
  */
-class BlockConverter(private val internalConverter: InternalConverter) : Converter {
+open class BlockConverter(private val internalConverter: InternalConverter) : Converter {
 
     override fun toConfig(type: Class<*>?, obj: Any?, parameterizedType: ParameterizedType?): Any {
         val block: Block = obj as Block
