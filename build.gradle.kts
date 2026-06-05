@@ -81,7 +81,11 @@ subprojects {
         publications {
             create<MavenPublication>("mavenJava") {
                 from(components["java"])
-                artifactId = project.name
+                artifactId = when (project.name) {
+                    "core" -> "Yamler-Core"
+                    "paper" -> "Yamler-Paper"
+                    else -> project.name
+                }
             }
         }
     }
