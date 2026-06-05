@@ -38,9 +38,7 @@ class BlockConverter(private val internalConverter: InternalConverter) : Convert
             Bukkit.getWorld(locationMap["world"] as String),
             locationMap["x"] as Double,
             locationMap["y"] as Double,
-            locationMap["z"] as Double,
-            locationMap["yaw"] as Float,
-            locationMap["pitch"] as Float
+            locationMap["z"] as Double
         )
         val block = location.block
 
