@@ -24,7 +24,7 @@ open class ConfigBase {
     @Transient
     open var configFile: File? = null
     @Transient
-    protected var configHeader: Array<String>? = null
+    open var configHeader: Array<String>? = null
     @Transient
     protected var configMode: ConfigMode = ConfigMode.DEFAULT
     @Transient
