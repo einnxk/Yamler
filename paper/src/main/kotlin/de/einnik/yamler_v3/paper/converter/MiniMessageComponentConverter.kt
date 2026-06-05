@@ -25,9 +25,12 @@ open class MiniMessageComponentConverter(private val internalConverter: Internal
             ?: throw IllegalStateException("Internal converter could not be found")
 
         val saveMap: MutableMap<String, Any?> = mutableMapOf()
-        saveMap["text-decoration"] = component.decorations().let {
-            mapConverter.toConfig(Map::class.java, it, null)
-        }
+        saveMap["text-decoration"] =
+            mapConverter.toConfig(
+                HashMap::class.java,
+                HashMap(component.decorations()),
+                null
+            )
 
         saveMap["content"] = MiniMessage.miniMessage().serialize(component)
 

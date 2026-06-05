@@ -20,7 +20,7 @@ import java.util.*
  * @author EinNik
  * @since 3.0.0-SNAPSHOT
  */
-open class YamlConfig : ConfigMapper(), Config {
+abstract class YamlConfig : ConfigMapper(), Config {
 
     override fun save() {
         if (configFile == null) {
