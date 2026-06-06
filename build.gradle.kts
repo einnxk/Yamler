@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "de.einnik"
-    version = "3.0.3-SNAPSHOT"
+    version = "3.0.4-SNAPSHOT"
 
     repositories {
         mavenCentral()
